@@ -9,6 +9,8 @@ APIKEY = '39662f912f908f18cf2e03b0dfaa00123d488637'
 STATIONS = 'https://api.jcdecaux.com/vls/v1/stations'
 NAME="Dublin"
 
+# comment
+
 def write_to_file(r):
     with open("test.json".format(datetime.datetime.now()).replace(" ","_"), "w") as f:
         f.write(json.dumps(r))
