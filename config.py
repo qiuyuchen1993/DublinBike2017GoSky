@@ -1,5 +1,5 @@
 import simplejson as json
-from flask import Flask, g, jsonify
+from flask import Flask, g, jsonify, render_template
 from sqlalchemy import create_engine
 import MySQLdb
 
@@ -25,6 +25,16 @@ def get_db():
         engine = g.engine = connect_to_database()
     return engine
 
+@app.route("/all")
+#@functools.lru_cache(maxsize=128)
+def get_station():
+    engine=get_db()
+    sql="select * from station;"
+    rows = engine.execute(sql).fetchall()
+    print('#found{}stations',len(rows))
+    return jsonify(stations=[dict(row.items()) for row in rows])
+    
+
 @app.route("/available/<int:Number>")
 def get_stations(Number):
     engine=get_db()
@@ -42,7 +52,7 @@ def main():
 
 @app.route("/index")
 def index():
-    return app.send_static_file('index.html')
+    return render_template("index.html")
 
 @app.route("/hello")
 def hello():
@@ -50,7 +60,7 @@ def hello():
 
 @app.route('/user')
 def root():
-    return app.send_static_file('user.html')
+    return render_template('user.html')
 
 @app.route('/station/<int:Number>')
 def station(Number):

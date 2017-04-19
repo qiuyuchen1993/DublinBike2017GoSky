@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dublin Bike 2</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 500px;
+        width:700px; 
+        margin:0px auto;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <header class="wrapper">Dublin Bike</header>
+    <div id="map"></div>
+    <div id="demo1"></div>
+    <div id="demo2"></div>
+    <script>
+    var map;
+      function initMap() {
+        // Create a map object and specify the DOM element for display.
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 53.350140, lng: -6.266155},
+          scrollwheel: false,
+          zoom: 13
+        });
+      }
+       jQuery.getJSON("http://127.0.0.1:5000/all",null,function(data){
+           window.alert(JSON.stringify(data));
+            var stations = data.stations;
+           window.alert(JSON.stringify(stations));
+            _.forEach(stations,function(station){
+                var marker = new google.maps.Marker({
+                    position:{
+                        lat:station.Position_lat,
+                        lng:station.Position_lng
+                    },
+                    map:map,
+                    title:station.Name,
+                    station_number:station.Number
+                });
+                marker.addListener("click",function(){
+                    //drawStationCharts(this);
+                    drawStationChartsWeekly(this);
+                });
+            })
+    });
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGBryVvUO4uIGB-ARr3TQILDpEMwRCdx0&callback&callback=initMap"
+    async defer></script>
+  </body>
+</html>
