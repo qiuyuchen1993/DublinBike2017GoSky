@@ -64,11 +64,11 @@
                     infowindow.open(map, marker);
                     document.getElementById("demo1").innerHTML = station.Number;
                     //alert("station " + station.Number + "\n" + station.Name + "\n" + "available bikes" + station.Available_bikes);
-                    drawStationChartsWeekly(station.Number);
-                        
-                        
+                    drawStationChartsWeekly(station.Number);});
                 
-                });
+                 marker.addListener("mouseout",function(){
+                     infowindow.close(map, marker);
+                    });
             })
     });
         
@@ -80,13 +80,13 @@
             data = JSON.parse(data.data)
             var chart_data = new google.visualization.DataTable();
             chart_data.addColumn('datetime','Time of Day');
-            chart_data.addColumn('number','#');
+            chart_data.addColumn('number','number of available bike stands');
             
             _.forEach(data, function(row){
             chart_data.addRow([new Date(row[0]), row[1]]);
             })
             var options = {
-            title: 'Available Bikes',
+            title: 'Available Bike stands',
             curveType: 'function',
             legend: { position: 'bottom' }
             };
