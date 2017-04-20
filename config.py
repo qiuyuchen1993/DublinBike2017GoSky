@@ -2,6 +2,7 @@ import simplejson as json
 from flask import Flask, g, jsonify, render_template
 from sqlalchemy import create_engine
 import MySQLdb
+import pandas as pd
 
 #static_url_path=''
 app = Flask(__name__)
@@ -84,6 +85,16 @@ def get_dbinfo():
     res = [dict(row.items()) for row in rows]
     print(res)
     return jsonify(data=res)
+
+@app.route("/occupancy/<int:Number>")
+def get_occupany(Number):
+    engine=get_db()
+    df = pd.read_sql_query("select * from availability where Number = %(Number)s", engine, params={"Number":Number})
+    df['Last_update']=pd.to_datetime(df.Last_update, unit='ms')
+    df.set_index('Last_update', inplace=True)
+    res = df['Available_bike_stands'].resample('5m').mean()
+    print(res)
+    return jsonify(data=json.dumps(list(zip(map(lambda x:x.isoformat(), res.index), res.values))))
 
 if __name__=="__main__":
     """
