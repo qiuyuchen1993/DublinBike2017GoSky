@@ -47,11 +47,11 @@ def get_stations(Number):
         data.append(dict(row))    
     return json.dumps(data)
 
-@app.route("/")
+@app.route("/hi")
 def main():
     return "Hi!"
 
-@app.route("/index")
+@app.route("/")
 def index():
     return render_template("index.html")
 
