@@ -86,13 +86,28 @@ def get_dbinfo():
     print(res)
     return jsonify(data=res)
 
+"""
 @app.route("/occupancy/<int:Number>")
 def get_occupany(Number):
     engine=get_db()
     df = pd.read_sql_query("select * from availability where Number = %(Number)s", engine, params={"Number":Number})
+    df['Last_update']= pd.to_datetime(df.Last_update, unit='ms')
+    df.set_index('Last_update', inplace=True)
+    res = df['Available_bike_stands'].resample('1h').mean()
+    #print(res)
+    #ad=jsonify(data=json.dumps(list(zip(map(lambda x:x.isoformat(), res.index), res.values))))
+    ad = res.to_json()
+    print(type(res))
+    return ad
+"""
+
+@app.route("/occupancy/<int:Number>")
+def get_occupany(Number):
+    engine=get_db()
+    df = pd.read_sql_query("select * from station where Number = %(Number)s", engine, params={"Number":Number})
     df['Last_update']=pd.to_datetime(df.Last_update, unit='ms')
     df.set_index('Last_update', inplace=True)
-    res = df['Available_bike_stands'].resample('5m').mean()
+    res = df['Available_bike_stands'].resample('1h').mean()
     print(res)
     return jsonify(data=json.dumps(list(zip(map(lambda x:x.isoformat(), res.index), res.values))))
 
