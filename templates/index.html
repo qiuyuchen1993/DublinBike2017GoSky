@@ -27,6 +27,9 @@
   </head>
   <body>
     <h1>Dublin Bike</h1>
+    <div id="floating-panel">
+      <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+    </div>
     <div id="map"></div>
     <div id="demo1" style="width: 900px; height: 500px" ></div>
     <div id="demo2" style="width: 900px; height: 500px" ></div>
@@ -39,6 +42,10 @@
           scrollwheel: false,
           zoom: 13
         });
+          var trafficLayer = new google.maps.TrafficLayer();
+        trafficLayer.setMap(map);
+         /* var bikeLayer = new google.maps.BicyclingLayer();
+  bikeLayer.setMap(map);*/
       }
        
         jQuery.getJSON("http://127.0.0.1:5000/all",null,function(data){
@@ -57,15 +64,17 @@
                 });
                 
                 var contentString='<h2>'+'station no.'+station.Number+'</h2>' +'<br>' +station.Name+'</br>'+'<br>' +'available bikes: '+station.Available_bikes +'</br>'+'<br>' +'available bike stands: '+station.Available_bike_stands +'</br>'+'<br>'
-                var infowindow = new google.maps.InfoWindow({
+                infowindow = new google.maps.InfoWindow();
+                /*var infowindow = new google.maps.InfoWindow({
                 content: contentString
-                });
+                });*/
                 
                 marker.addListener("click",function(){
+                infowindow.setContent(contentString);
+                infowindow.open(map, this);
                 
-                
-                    if(!marker.open){
-                infowindow.open(map,marker);
+                    /*if(!marker.open){
+                infowindow.open(map,this);
                 marker.open = true;
             }
             else{
@@ -76,7 +85,7 @@
                     google.maps.event.addListener(map, 'click', function() {
                 infowindow.close();
                 marker.open = false;
-            });
+            }); */
                      
             
               
