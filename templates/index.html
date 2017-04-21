@@ -29,7 +29,7 @@
     <h1>Dublin Bike</h1>
     <div id="map"></div>
     <div id="demo1" style="width: 900px; height: 500px" ></div>
-    <div id="demo2"></div>
+    <div id="demo2" style="width: 900px; height: 500px" ></div>
     <script>
     var map;
       function initMap() {
@@ -60,16 +60,55 @@
                 var infowindow = new google.maps.InfoWindow({
                 content: contentString
                 });
-                marker.addListener("click",function(){
-                    infowindow.open(map, marker);
-                    document.getElementById("demo1").innerHTML = station.Number;
-                    //alert("station " + station.Number + "\n" + station.Name + "\n" + "available bikes" + station.Available_bikes);
-                    drawStationChartsWeekly(station.Number);});
                 
-                 marker.addListener("mouseout",function(){
-                     infowindow.close(map, marker);
-                    });
+                marker.addListener("click",function(){
+                
+                
+                    if(!marker.open){
+                infowindow.open(map,marker);
+                marker.open = true;
+            }
+            else{
+                infowindow.close();
+                marker.open = false;
+            }
+                    
+                    google.maps.event.addListener(map, 'click', function() {
+                infowindow.close();
+                marker.open = false;
+            });
+                     
+            
+              
+                    
+                    
+                  document.getElementById("demo2").innerHTML = station.Number;
+                    drawpie();
+                    drawStationChartsWeekly(station.Number);}); 
+                            
+                
+                
+                function drawpie(){
+                var data = google.visualization.arrayToDataTable([
+          ['Availability', 'Number'],
+          ['Number of available bike stands',     station.Available_bikes],
+          ['Number of available bikes',      station.Available_bike_stands]
+        ]);
+
+        var options = {
+          title: 'Occupancy for now'
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('demo2'));
+
+        chart.draw(data, options);
+            }
+                
+                
+                 
             })
+            
+
     });
         
         
@@ -80,13 +119,14 @@
             data = JSON.parse(data.data)
             var chart_data = new google.visualization.DataTable();
             chart_data.addColumn('datetime','Time of Day');
-            chart_data.addColumn('number','number of available bike stands');
+            chart_data.addColumn('number','Number of available bike stands');
+            chart_data.addColumn('number','Number of available bikes');
             
             _.forEach(data, function(row){
-            chart_data.addRow([new Date(row[0]), row[1]]);
+            chart_data.addRow([new Date(row[0]), row[1],row[2]]);
             })
             var options = {
-            title: 'Available Bike stands',
+            title: 'Availability',
             curveType: 'function',
             legend: { position: 'bottom' }
             };
@@ -108,6 +148,13 @@
             //console.log("error");
         //});
         }
+        
+        /*function get_availablebikes(Number){
+            jQuery.getJSON("http://127.0.0.1:5000/occupancy/" + Number,function(data){
+               console.log('data',data);
+                data = JSON.parse(data.data) 
+            }
+        }*/
         
        
     </script>
