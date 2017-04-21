@@ -101,6 +101,16 @@ def get_occupany(Number):
     return ad
 """
 
+@app.route("/availablebikes/<int:Number>")
+def get_bikes(Number):
+    engine=get_db()
+    df = pd.read_sql_query("select * from station where Number = %(Number)s", engine, params={"Number":Number})
+    df['Last_update']=pd.to_datetime(df.Last_update, unit='ms')
+    df.set_index('Last_update', inplace=True)
+    res = df['Available_bikes'].resample('1h').mean()
+    print(res)
+    return jsonify(data=json.dumps(list(zip(map(lambda x:x.isoformat(), res.index), res.values))))
+
 @app.route("/occupancy/<int:Number>")
 def get_occupany(Number):
     engine=get_db()
@@ -108,8 +118,9 @@ def get_occupany(Number):
     df['Last_update']=pd.to_datetime(df.Last_update, unit='ms')
     df.set_index('Last_update', inplace=True)
     res = df['Available_bike_stands'].resample('1h').mean()
+    res1 = df['Available_bikes'].resample('1h').mean()
     print(res)
-    return jsonify(data=json.dumps(list(zip(map(lambda x:x.isoformat(), res.index), res.values))))
+    return jsonify(data=json.dumps(list(zip(map(lambda x:x.isoformat(), res.index), res.values,res1.values))))
 
 if __name__=="__main__":
     """
