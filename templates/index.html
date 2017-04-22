@@ -34,8 +34,26 @@
     <div id="map"></div>
     <div id="demo1" style="width: 900px; height: 500px" ></div>
     <div id="demo2" style="width: 900px; height: 500px" ></div>
+    <div id="demo3" style="width: 900px; height: 500px"></div>
+    <table>
+    <tr>
+    <th>Latitude</th>
+    <th>Longitude</th> 
+    <th>Icon</th>
+    <th>Temperature</th>
+    <th>Description</th>
+    </tr>
+    <tr>
+    <td id="lat"></td>
+    <td id="lon"></td>
+    <td id="icon"></td>
+    <td id="tem"></td>
+    <td id="des"></td>
+    </tr>
+</table>
     <script>
     var map;
+    var openWeatherMapKey = "64202cb2b0caaa81bfc12eeb1e8d4bb2"
       function initMap() {
         // Create a map object and specify the DOM element for display.
         map = new google.maps.Map(document.getElementById('map'), {
@@ -48,6 +66,40 @@
          /* var bikeLayer = new google.maps.BicyclingLayer();
   bikeLayer.setMap(map);*/
       }
+        
+        
+ 
+
+         function getWeather(Lat,Lng) {
+        
+       jQuery.getJSON("http://api.openweathermap.org/data/2.5/weather?lat=" + Lat + "&lon=" + Lng + "&appid=" + openWeatherMapKey,function(result){
+        //var iconcode='';
+        var iconcode=result.weather[0].icon;
+        var iconUrl = "http://openweathermap.org/img/w/" + iconcode + ".png";
+        document.getElementById('icon').innerHTML = '<img src=' + iconUrl + '>';
+        var lat=result.coord.lat;
+        document.getElementById('lat').innerHTML = lat;
+        var lon=result.coord.lon;
+        document.getElementById('lon').innerHTML = lon;
+        var description=result.weather[0].description;
+        document.getElementById('des').innerHTML = description;
+        var tem1=(result.main.temp- 273.15);
+        var tem=Math.round(parseFloat(tem1)*100)/100;
+        document.getElementById('tem').innerHTML = tem;
+        });
+        
+         } 
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+
        
         jQuery.getJSON("http://127.0.0.1:5000/all",null,function(data){
            //window.alert(JSON.stringify(data));
@@ -63,40 +115,33 @@
                     title:station.Name,
                     station_number:station.Number
                 });
+               
+        
+    
+             
                 
-                var contentString='<h2>'+'station no.'+station.Number+'</h2>' +'<br>' +station.Name+'</br>'+'<br>' +'available bikes: '+station.Available_bikes +'</br>'+'<br>' +'available bike stands: '+station.Available_bike_stands +'</br>'+'<br>'
+                
+                /*var contentString='<h2>'+'station no.'+station.Number+'</h2>' +'<br>' +station.Name+'</br>'+'<br>' +'available bikes: '+station.Available_bikes +'</br>'+'<br>' +'available bike stands: '+station.Available_bike_stands +'</br>'+'<br>'*/
                 infowindow = new google.maps.InfoWindow();
                 /*var infowindow = new google.maps.InfoWindow({
                 content: contentString
                 });*/
                 
-                marker.addListener("click",function(){
+                marker.addListener("click",function(){ 
+                 
+                
+                iconUrl=getWeather(station.Position_lat, station.Position_lng);
+                
+                var contentString='<h2>'+'station no.'+station.Number+'</h2>' +station.Name+'</br>'+'<br>' +'available bikes: '+station.Available_bikes +'</br>'+'<br>' +'available bike stands: '+station.Available_bike_stands +'</br>'+'<br>'
                 infowindow.setContent(contentString);
                 infowindow.open(map, this);
-                
-                    /*if(!marker.open){
-                infowindow.open(map,this);
-                marker.open = true;
-            }
-            else{
-                infowindow.close();
-                marker.open = false;
-            }
-                    
-                    google.maps.event.addListener(map, 'click', function() {
-                infowindow.close();
-                marker.open = false;
-            }); */
-                     
-            
-              
-                    
-                    
-                  document.getElementById("demo2").innerHTML = station.Number;
                     drawpie();
-                    drawStationChartsWeekly(station.Number);}); 
-                            
+                    drawStationChartsWeekly(station.Number);
                 
+                    
+                });
+                    
+                            
                 
                 function drawpie(){
                 var data = google.visualization.arrayToDataTable([
@@ -106,7 +151,8 @@
         ]);
 
         var options = {
-          title: 'Occupancy for now'
+          title: 'Occupancy for now',
+         colors: ['blue', 'grey']
         };
 
         var chart = new google.visualization.PieChart(document.getElementById('demo2'));
@@ -138,7 +184,8 @@
             var options = {
             title: 'Hourly Average Availability',
             curveType: 'function',
-            legend: { position: 'bottom' }
+            legend: { position: 'bottom' },
+                colors: ['blue', 'grey']
             };
             var chart = new google.visualization.LineChart(document.getElementById('demo1'));
             chart.draw(chart_data,options);
@@ -159,13 +206,13 @@
         //});
         }
         
-        /*function get_availablebikes(Number){
-            jQuery.getJSON("http://127.0.0.1:5000/occupancy/" + Number,function(data){
-               console.log('data',data);
-                data = JSON.parse(data.data) 
-            }
-        }*/
+      
         
+
+
+    
+        
+    
        
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
