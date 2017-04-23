@@ -73,7 +73,7 @@
   bikeLayer.setMap(map);*/
       }
        
-        jQuery.getJSON("http://127.0.0.1:5000/all",null,function(data){
+        jQuery.getJSON("http://0.0.0.0:5000/all",null,function(data){
            //window.alert(JSON.stringify(data));
             var stations = data.stations;
            //window.alert(JSON.stringify(stations));
@@ -129,7 +129,7 @@
         
         function drawStationChartsWeekly(Number){
           //window.alert(Number);  
-        jQuery.getJSON("http://127.0.0.1:5000/occupancy/" + Number,function(data){
+        jQuery.getJSON("http://0.0.0.0:5000/occupancy/" + Number,function(data){
             console.log('data',data);
             data = JSON.parse(data.data)
             var chart_data1 = new google.visualization.DataTable();
@@ -198,7 +198,8 @@
            //console.log('toggle heatmap');
            if(me.checked) {
                if(heatmap == null) {
-                   var jqxhr = $.getJSON("http://127.0.0.1:5000/all",null,
+                   var jqxhr = $.getJSON("http://0.0.0.0:5000/all",null,
+                   var jqxhr = $.getJSON("http://0.0.0.0:5000/all",null,
                                          function(data) {
                        var stations = data.stations;
                        //window.alert(JSON.stringify(stations));
