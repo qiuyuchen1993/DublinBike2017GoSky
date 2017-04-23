@@ -131,5 +131,5 @@ if __name__=="__main__":
     http://127.0.0.1:5000/dbinfo
     http://127.0.0.1:5000/station/42
     """
-    app.run(debug=False)
+    app.run(port=5000,debug=False,host='0.0.0.0')
     
