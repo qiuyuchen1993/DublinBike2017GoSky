@@ -40,7 +40,7 @@
     </div>
     <div id="demo1" class="g1" ></div>
     <div id="demo2" class="g2"></div>
-    <div > <table>
+    <div class="g3"> <table>
     <tr>
     <th>Latitude</th>
     <th>Longitude</th> 
@@ -55,7 +55,9 @@
     <td id="tem"></td>
     <td id="des"></td>
     </tr>
-</table><input type="checkbox" name="checkbox-1" value="heatmap" id="checkbox-1" onclick="drawHeatmap(me)">Heatmap</div>
+        </table></div>
+        <section title=".slideThree"><div class="slide"><input type="checkbox" name="check" value="heatmap" id="slide" onclick="drawHeatmap(me)"><label for="slide"></label></div></section>
+        <div style="float:right;margin-top:50px;color:white;width:100%;height:40px;background-color:darkorange;text-align:center"><p1 style="float:center;margin-top:10px">© COPY RIGHT Peng Xu, Yuchen Qiu, Shanming LI</p1></div>
     <script>
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     var map;
@@ -130,7 +132,7 @@
         
         function drawStationChartsWeekly(Number){
           //window.alert(Number);  
-        jQuery.getJSON("http://0.0.0.0:5000/occupancy/" + Number,function(data){
+        jQuery.getJSON($SCRIPT_ROOT+"/occupancy/" + Number,function(data){
             console.log('data',data);
             data = JSON.parse(data.data)
             var chart_data1 = new google.visualization.DataTable();
@@ -193,13 +195,13 @@
                 data = JSON.parse(data.data) 
             }
         }*/
-        var me=document.getElementById('checkbox-1');
+        var me=document.getElementById('slide');
         var heatmap,map;
        function drawHeatmap(me) {
            //console.log('toggle heatmap');
            if(me.checked) {
                if(heatmap == null) {
-                   var jqxhr = $.getJSON("http://0.0.0.0:5000/all",null,
+                   var jqxhr = $.getJSON($SCRIPT_ROOT+"/all",null,
                                          function(data) {
                        var stations = data.stations;
                        //window.alert(JSON.stringify(stations));
