@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dublin Bike</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 500px; 
+        margin:0px auto;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    
+  google.charts.load('current', {packages: ['corechart']});
+</script>
+  </head>
+  <body>
+    <h1>Dublin Bike</h1>
+    <div id="floating-panel">
+      <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+    </div>
+    <div id="map"></div>
+    <div id="demo1" style="width: 900px; height: 500px" ></div>
+    <div id="demo2" style="width: 900px; height: 500px" ></div>
+    <div id="demo3" style="width: 900px; height: 500px"></div>
+    <table>
+    <tr>
+    <th>Latitude</th>
+    <th>Longitude</th> 
+    <th>Icon</th>
+    <th>Temperature</th>
+    <th>Description</th>
+    </tr>
+    <tr>
+    <td id="lat"></td>
+    <td id="lon"></td>
+    <td id="icon"></td>
+    <td id="tem"></td>
+    <td id="des"></td>
+    </tr>
+</table>
+    <script>
+    var map;
+    var openWeatherMapKey = "64202cb2b0caaa81bfc12eeb1e8d4bb2"
+      function initMap() {
+        // Create a map object and specify the DOM element for display.
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 53.350140, lng: -6.266155},
+          scrollwheel: false,
+          zoom: 13
+        });
+          var trafficLayer = new google.maps.TrafficLayer();
+        trafficLayer.setMap(map);
+         /* var bikeLayer = new google.maps.BicyclingLayer();
+  bikeLayer.setMap(map);*/
+      }
+        
+        
+ 
+
+         function getWeather(Lat,Lng) {
+        
+       jQuery.getJSON("http://api.openweathermap.org/data/2.5/weather?lat=" + Lat + "&lon=" + Lng + "&appid=" + openWeatherMapKey,function(result){
+        //var iconcode='';
+        var iconcode=result.weather[0].icon;
+        var iconUrl = "http://openweathermap.org/img/w/" + iconcode + ".png";
+        document.getElementById('icon').innerHTML = '<img src=' + iconUrl + '>';
+        var lat=result.coord.lat;
+        document.getElementById('lat').innerHTML = lat;
+        var lon=result.coord.lon;
+        document.getElementById('lon').innerHTML = lon;
+        var description=result.weather[0].description;
+        document.getElementById('des').innerHTML = description;
+        var tem1=(result.main.temp- 273.15);
+        var tem=Math.round(parseFloat(tem1)*100)/100;
+        document.getElementById('tem').innerHTML = tem;
+        });
+        
+         } 
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+
+       
+        jQuery.getJSON("http://127.0.0.1:5000/all",null,function(data){
+           //window.alert(JSON.stringify(data));
+            var stations = data.stations;
+           //window.alert(JSON.stringify(stations));
+            _.forEach(stations,function(station){
+                var marker = new google.maps.Marker({
+                    position:{
+                        lat:station.Position_lat,
+                        lng:station.Position_lng
+                    },
+                    map:map,
+                    title:station.Name,
+                    station_number:station.Number
+                });
+               
+        
+    
+             
+                
+                
+                
+                infowindow = new google.maps.InfoWindow();
+                
+                
+                marker.addListener("click",function(){ 
+                 
+                
+                iconUrl=getWeather(station.Position_lat, station.Position_lng);
+                
+                var contentString='<h2>'+'station no.'+station.Number+'</h2>' +station.Name+'</br>'+'<br>' +'available bikes: '+station.Available_bikes +'</br>'+'<br>' +'available bike stands: '+station.Available_bike_stands +'</br>'+'<br>'
+                infowindow.setContent(contentString);
+                infowindow.open(map, this);
+                    drawpie();
+                    drawStationChartsWeekly(station.Number);
+                
+                    
+                });
+                    
+                            
+                
+                function drawpie(){
+                var data = google.visualization.arrayToDataTable([
+          ['Availability', 'Number'],
+          ['Number of available bike stands',     station.Available_bikes],
+          ['Number of available bikes',      station.Available_bike_stands]
+        ]);
+
+        var options = {
+          title: 'Occupancy for now',
+         colors: ['blue', 'grey']
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('demo2'));
+
+        chart.draw(data, options);
+            }
+                
+                
+                 
+            })
+            
+
+    });
+        
+        
+        function drawStationChartsWeekly(Number){
+          //window.alert(Number);  
+        jQuery.getJSON("http://127.0.0.1:5000/occupancy/" + Number,function(data){
+            console.log('data',data);
+            data = JSON.parse(data.data)
+            var chart_data = new google.visualization.DataTable();
+            chart_data.addColumn('datetime','Time of Day');
+            chart_data.addColumn('number','Number of available bike stands');
+            chart_data.addColumn('number','Number of available bikes');
+            
+            _.forEach(data, function(row){
+            chart_data.addRow([new Date(row[0]), row[1],row[2]]);
+            })
+            var options = {
+            title: 'Hourly Average Availability',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+                colors: ['blue', 'grey']
+            };
+            var chart = new google.visualization.LineChart(document.getElementById('demo1'));
+            chart.draw(chart_data,options);
+            
+            //window.alert(JSON.stringify(data));
+            
+            //var node = document.createElement('div'),
+            //infowindow = new google.maps.Infowindow(),
+            //chart = new google.visualization.ColumnChart(node);
+            
+            
+          
+            //chart.draw(chart_data,options);
+            //infowindow.setContent(node);
+            //infowindow.open(marker.getMap(),marker);
+        })//.fail(function(){
+            //console.log("error");
+        //});
+        }
+        
+      
+        
+
+
+    
+        
+    
+       
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGBryVvUO4uIGB-ARr3TQILDpEMwRCdx0&callback&callback=initMap"
+    async defer></script>
+  </body>
+</html>
