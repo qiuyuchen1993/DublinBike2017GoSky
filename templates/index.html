@@ -57,6 +57,7 @@
     </tr>
 </table><input type="checkbox" name="checkbox-1" value="heatmap" id="checkbox-1" onclick="drawHeatmap(me)">Heatmap</div>
     <script>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     var map;
     var openWeatherMapKey = "64202cb2b0caaa81bfc12eeb1e8d4bb2"
       function initMap() {
@@ -73,7 +74,7 @@
   bikeLayer.setMap(map);*/
       }
        
-        jQuery.getJSON("http://0.0.0.0:5000/all",null,function(data){
+        jQuery.getJSON($SCRIPT_ROOT+"/all",null,function(data){
            //window.alert(JSON.stringify(data));
             var stations = data.stations;
            //window.alert(JSON.stringify(stations));
